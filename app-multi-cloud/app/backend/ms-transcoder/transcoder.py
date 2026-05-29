@@ -26,3 +26,5 @@ def transcode_video(input_s3_path, output_filename):
 # Simulación de ejecución del pipeline
 if __name__ == "__main__":
     transcode_video("s3://bucket-origen/clase1.mp4", "clase1_optimizada")
+
+#Pruebas
