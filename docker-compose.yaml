@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # 1. Contenedor del Frontend
+  frontend:
+    build: 
+      context: ./app-multi-cloud
+    container_name: edtech-frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - edtech-network
+    depends_on:
+      - catalog
+      - users
+
+  # 2. Contenedor de Usuarios
+  users:
+    build:
+      context: ./ms-users
+    container_name: edtech-users
+    ports:
+      - "4000:4000"
+    networks:
+      - edtech-network
+
+  # 3. Contenedor de Catálogo
+  catalog:
+    build:
+      context: ./ms-catalog
+    container_name: edtech-catalog
+    ports:
+      - "5000:5000"
+    networks:
+      - edtech-network
+
+  # 4. Contenedor del Transcodificador
+  transcoder:
+    build:
+      context: ./ms-transcoder
+    container_name: edtech-transcoder
+    networks:
+      - edtech-network
+
+networks:
+  edtech-network:
+    driver: bridge
