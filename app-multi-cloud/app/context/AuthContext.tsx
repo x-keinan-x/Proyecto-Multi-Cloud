@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    try {
+    /*try {
       // Petición al microservicio de Usuarios (Puerto 4000)
       const response = await fetch('http://localhost:4000/api/auth/login', {
         method: 'POST',
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_USER', payload: loggedUser });
     } catch (error) {
       throw error;
-    }
+    }*/
   };
 
   const register = async (email: string, password: string) => {
