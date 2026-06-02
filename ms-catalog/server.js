@@ -10,7 +10,8 @@ app.get('/api/courses', (req, res) => {
     // Estos datos idealmente se jalan desde la BD en Amazon RDS
     const courses = [
         { id: 1, title: "Introducción a Cloud Computing", duration: "10h", videoUrl: "videos/curso-cloud/intro.m3u8" },
-        { id: 2, title: "Kubernetes desde Cero", duration: "15h", videoUrl: "videos/curso-k8s/main.m3u8" }
+        { id: 2, title: "Kubernetes desde Cero", duration: "15h", videoUrl: "videos/curso-k8s/main.m3u8" },
+        { id: 3, title: "Docker para Principiantes", duration: "12h", videoUrl: "videos/curso-docker/intro.m3u8" }
     ];
     res.json(courses);
 });
