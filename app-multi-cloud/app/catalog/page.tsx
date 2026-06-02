@@ -17,17 +17,9 @@ export default function CatalogPage() {
 
   // Para consultar al microservicio de catálogo (Puerto 5000)
   useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/courses');
-        const data = await response.json();
-        setCourses(data);
-        setFilteredCourses(data);
-      } catch (error) {
-        console.error("Error cargando el catálogo:", error);
-      }
-    };
-    fetchCourses();
+    console.log('Cargando MOCK_COURSES:', MOCK_COURSES.length);
+    setCourses(MOCK_COURSES);
+    setFilteredCourses(MOCK_COURSES);
   }, []);
 
   useEffect(() => {
@@ -65,22 +57,42 @@ export default function CatalogPage() {
           {filteredCourses.map((course) => (
             <div
               key={course.id}
-              className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6"
+              className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden flex flex-col h-full"
             >
-              {course.image && (
+              {/* Video de YouTube o Imagen */}
+              {course.videoUrl ? (
+                <div className="relative w-full h-48 bg-black">
+                  <iframe
+                    width="100%"
+                    height="192"
+                    src={course.videoUrl}
+                    title={course.title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  />
+                </div>
+              ) : course.image && (
                 <img
                   src={course.image}
                   alt={course.title}
-                  className="w-full h-40 object-cover rounded mb-4"
+                  className="w-full h-48 object-cover"
                 />
               )}
-              <h3 className="text-xl font-semibold mb-2 text-gray-900">{course.title}</h3>
-              <p className="text-gray-600 text-sm mb-4">{course.description}</p>
-              <div className="flex justify-between items-center">
-                <span className="text-blue-600 font-medium">⏱️ {course.duration}</span>
-                {course.price && (
-                  <span className="text-green-600 font-semibold">${course.price}</span>
-                )}
+              
+              {/* Contenido */}
+              <div className="p-6 flex flex-col flex-1">
+                <h3 className="text-xl font-semibold mb-2 text-gray-900">{course.title}</h3>
+                <p className="text-gray-600 text-sm mb-4 flex-1">{course.description}</p>
+                
+                {/* Footer con info */}
+                <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                  <span className="text-blue-600 font-medium text-sm">⏱️ {course.duration}</span>
+                  {course.price && (
+                    <span className="text-green-600 font-semibold">${course.price}</span>
+                  )}
+                </div>
               </div>
             </div>
           ))}
