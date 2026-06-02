@@ -10,20 +10,34 @@ export default function CatalogPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredCourses, setFilteredCourses] = useState<Course[]>(MOCK_COURSES);
+  
+  // Estados para manejar los datos reales
+  const [courses, setCourses] = useState<any[]>([]);
+  const [filteredCourses, setFilteredCourses] = useState<any[]>([]);
 
+  // Para consultar al microservicio de catálogo (Puerto 5000)
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/courses');
+        const data = await response.json();
+        setCourses(data);
+        setFilteredCourses(data);
+      } catch (error) {
+        console.error("Error cargando el catálogo:", error);
+      }
+    };
+    fetchCourses();
+  }, []);
 
   useEffect(() => {
-    const filtered = MOCK_COURSES.filter((course) =>
-      course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.description.toLowerCase().includes(searchTerm.toLowerCase())
+    const filtered = courses.filter((course) =>
+      course.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredCourses(filtered);
-  }, [searchTerm]);
+  }, [searchTerm, courses]);
 
-  // CAMBIO: Removidas las validaciones de usuario
   if (loading) return <div>Cargando...</div>;
-  // if (!user) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">

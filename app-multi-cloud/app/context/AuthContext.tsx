@@ -34,8 +34,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    // Llamar API de login
-    // Guardar usuario en localStorage
+    try {
+      // Petición al microservicio de Usuarios (Puerto 4000)
+      const response = await fetch('http://localhost:4000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Credenciales inválidas');
+      }
+
+      // Guardar sesión y actualizar estado
+      localStorage.setItem('token', data.token);
+      const loggedUser = { id: '1', email: email };
+      localStorage.setItem('user', JSON.stringify(loggedUser));
+      
+      dispatch({ type: 'SET_USER', payload: loggedUser });
+    } catch (error) {
+      throw error;
+    }
   };
 
   const register = async (email: string, password: string) => {
