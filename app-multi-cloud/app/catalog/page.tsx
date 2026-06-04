@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image'; // Importamos para renderizar eficientemente EdTech.svg e imágenes
+import Image from 'next/image';
 import { useAuth } from '@/app/context/AuthContext';
 import { MOCK_COURSES } from '@/app/lib/mockCourses';
 
