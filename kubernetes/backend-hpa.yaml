@@ -1,0 +1,31 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: backend-hpa
+  namespace: default
+spec:
+  # Definición del objetivo de escalado (A qué Deployment va a controlar)
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ms-catalog-deployment # # AQUÍ VA: Asegúrate de que coincida exactamente con el nombre de tu deployment de backend en backend-apis.yaml
+  
+  # Límites elásticos de la infraestructura
+  minReplicas: 2 # Mínimo de pods para garantizar Alta Disponibilidad (Distributed en ZA-a y ZA-b)
+  maxReplicas: 10 # Máximo de pods autorizados para clonarse y evitar sobrecostos descontrolados
+  
+  # Métricas de activación (Umbral > 70%)
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70 # Se activa cuando el promedio de uso de CPU supera el 70%
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 70 # Se activa si la memoria RAM supera el 70% (Prevención de fallas OOMKilled)
+        
