@@ -1,0 +1,14 @@
+# ID exacto del proyecto en GCP (Reemplazar por el Project ID real)
+gcp_project = "tu-proyecto-gcp-123456"
+
+# Tu IP pública para restringir el acceso SSH (Formato CIDR, no olvidar el /32)
+my_ip = "X.X.X.X/32"
+
+# Nombre lógico de la llave SSH en AWS
+key_name = "nombre-de-tu-llave"
+
+# Ruta exacta a la llave pública SSH en tu entorno local (Usar barras normales '/')
+public_key_path = "C:/Users/tu_usuario/.ssh/tu-llave.pub"
+
+# Región de AWS donde se desplegará la infraestructura principal
+aws_region = "sa-east-1"
