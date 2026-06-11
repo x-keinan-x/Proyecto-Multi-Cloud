@@ -32,7 +32,7 @@ resource "random_id" "bucket_suffix" {
 # --- RED VIRTUAL (VPC) ---
 resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
-  tags       = { Name = "pi-vpc" }
+  tags = { Name = "pi-vpc" }
 }
 
 resource "aws_internet_gateway" "igw" {
