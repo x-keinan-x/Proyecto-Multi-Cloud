@@ -12,3 +12,8 @@ output "aws_s3_bucket" {
   description = "Nombre del bucket creado en AWS."
   value       = aws_s3_bucket.backup_bucket.bucket
 }
+
+output "db_endpoint" {
+  description = "URL de conexión a la base de datos PostgreSQL"
+  value       = aws_db_instance.edtech_db.endpoint
+}

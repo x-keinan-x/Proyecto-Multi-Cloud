@@ -2,7 +2,7 @@
 gcp_project = "project-743a56f6-2a76-4816-b0d"
 
 #ip publica
-my_ip = "200.112.79.238/32"
+my_ip = "179.60.73.8/32"
 
 # Nombre lógico de la llave SSH
 key_name = "pi-key"

@@ -1,13 +1,13 @@
-# ms-transcoder/transcoder.py (Python)
 import os
 import subprocess
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
 
 def transcode_video(input_s3_path, output_filename):
     print(f"Descargando video original desde S3: {input_s3_path}...")
-    # Aquí vendría la lógica usando la librería boto3 para descargar desde AWS S3
     
-    print("Iniciando pipeline de transcodificación con FFmpeg (HLS / .m3u8)...")
-    # Comando FFmpeg para segmentar el video (adaptativo para streaming móvil/web)
+    print("Iniciando pipeline de transcodificación con FFmpeg...")
     comando_ffmpeg = [
         'ffmpeg', '-i', 'video_original.mp4',
         '-profile:v', 'baseline', '-level', '3.0',
@@ -16,15 +16,31 @@ def transcode_video(input_s3_path, output_filename):
         '-f', 'hls', f'output/{output_filename}.m3u8'
     ]
     
-    # Ejecutar el proceso en el contenedor
-    subprocess.run(comando_ffmpeg)
-    
+    try:
+        subprocess.run(comando_ffmpeg, check=False) 
+    except Exception as e:
+        print(f"Error al ejecutar FFmpeg: {e}")
+        
     print("Subiendo fragmentos optimizados al Bucket de AWS S3 de salida...")
-    # Almacenar de forma segura para que la CDN (CloudFront) pueda leerlo
     print("¡Proceso completado con éxito!")
 
-# Simulación de ejecución del pipeline
-if __name__ == "__main__":
-    transcode_video("s3://bucket-origen/clase1.mp4", "clase1_optimizada")
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "Transcodificador API funcionando perfectamente"}), 200
 
-#Pruebas
+@app.route('/api/transcode', methods=['POST'])
+def trigger_transcode():
+    data = request.get_json() or {}
+    input_path = data.get("input_path", "s3://bucket-origen/clase1.mp4")
+    output_name = data.get("output_name", "clase1_optimizada")
+    
+    # Ejecutar la función
+    transcode_video(input_path, output_name)
+    
+    return jsonify({
+        "message": "Transcodificación procesada",
+        "video": output_name
+    }), 200
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000)

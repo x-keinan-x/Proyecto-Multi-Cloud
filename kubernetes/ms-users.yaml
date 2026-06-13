@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ms-catalog-deployment
+  name: ms-users-deployment
   namespace: default
   labels:
-    app: ms-catalog
+    app: ms-users
 spec:
-  replicas: 2 # Iniciamos con 2 pods para Alta Disponibilidad
+  replicas: 2 # 2 clones para asegurar que esté disponible el login
   selector:
     matchLabels:
-      app: ms-catalog
+      app: ms-users
   template:
     metadata:
       labels:
-        app: ms-catalog
+        app: ms-users
     spec:
       containers:
-      - name: catalog-api
-        image: xxkeinanxx/proyecto-multi-cloud-catalog:latest
+      - name: users-api
+        image: xxkeinanxx/proyecto-multi-cloud-users:latest 
         ports:
         - containerPort: 8080
         envFrom:
@@ -28,19 +28,19 @@ spec:
         resources:
           requests:
             cpu: "50m"      
-            memory: "64Mi"
+            memory: "64Mi"  
           limits:
-            cpu: "500m" # El HPA se activará cuando supere el 70% de este valor
+            cpu: "500m"
             memory: "512Mi"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: ms-catalog-service
+  name: ms-users-service
 spec:
-  type: ClusterIP # Solo accesible desde dentro del cluster
+  type: ClusterIP
   selector:
-    app: ms-catalog
+    app: ms-users
   ports:
   - port: 80
     targetPort: 8080

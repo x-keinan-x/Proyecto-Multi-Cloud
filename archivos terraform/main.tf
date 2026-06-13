@@ -84,7 +84,7 @@ resource "aws_security_group" "sg_web" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -129,6 +129,10 @@ resource "aws_instance" "vm_app" {
   key_name               = aws_key_pair.deployer.key_name
   user_data              = file("user_data.sh")
   tags                   = { Name = "pi-vm-app" }
+  root_block_device {
+    volume_size = 20
+    volume_type = "gp3"
+  }
 }
 
 resource "aws_instance" "vm_backup" {
@@ -178,4 +182,26 @@ resource "google_storage_bucket" "gcp_backup" {
   location                    = "US"
   force_destroy               = true
   uniform_bucket_level_access = true
+}
+
+# GRUPO DE SUBREDES PARA LA BASE DE DATOS
+resource "aws_db_subnet_group" "db_subnet" {
+  name       = "pi-db-subnet-group"
+  subnet_ids = [aws_subnet.subnet_a.id, aws_subnet.subnet_b.id]
+  tags       = { Name = "pi-db-subnet-group" }
+}
+
+# BASE DE DATOS RDS (POSTGRESQL)
+resource "aws_db_instance" "edtech_db" {
+  identifier             = "pi-database"
+  allocated_storage      = 20
+  engine                 = "postgres"
+  engine_version         = "16"
+  instance_class         = "db.t3.micro"
+  username               = "dbadmin"
+  password               = "PasswordSeguro123"
+  db_subnet_group_name   = aws_db_subnet_group.db_subnet.name
+  vpc_security_group_ids = [aws_security_group.sg_web.id]
+  skip_final_snapshot    = true # Poder destruirla rápido al terminar
+  publicly_accessible    = false
 }

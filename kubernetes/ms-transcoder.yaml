@@ -15,13 +15,13 @@ spec:
     spec:
       containers:
       - name: video-transcoder
-        image: tu-usuario-docker/ms-transcoder:latest # REEMPLAZAR AQUÍ
+        image: xxkeinanxx/proyecto-multi-cloud-transcoder:latest
         ports:
         - containerPort: 5000
         resources:
           requests:
-            cpu: "500m"
-            memory: "512Mi"
+            cpu: "50m"      
+            memory: "64Mi"
           limits:
             cpu: "1000m" # Permitimos usar hasta 1 núcleo completo
             memory: "1Gi"

@@ -15,13 +15,13 @@ spec:
     spec:
       containers:
       - name: web-ui
-        image: tu-usuario-docker/proyecto-multi-cloud-frontend:latest
+        image: xxkeinanxx/proyecto-multi-cloud-frontend:latest
         ports:
         - containerPort: 80
         resources:
           requests:
-            cpu: "100m"
-            memory: "128Mi"
+            cpu: "50m"      
+            memory: "64Mi"
           limits:
             cpu: "250m"
             memory: "256Mi"
