@@ -17,7 +17,7 @@ spec:
       - name: web-ui
         image: xxkeinanxx/proyecto-multi-cloud-frontend:latest
         ports:
-        - containerPort: 80
+        - containerPort: 3000
         resources:
           requests:
             cpu: "50m"      
@@ -31,9 +31,10 @@ kind: Service
 metadata:
   name: frontend-service
 spec:
-  type: LoadBalancer # Kubernetes hablará con AWS para pedir una IP pública
+  type: NodePort
   selector:
     app: frontend
   ports:
   - port: 80
-    targetPort: 80
+    targetPort: 3000
+    nodePort: 30080

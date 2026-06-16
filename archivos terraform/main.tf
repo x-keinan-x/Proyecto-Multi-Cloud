@@ -94,6 +94,13 @@ resource "aws_security_group" "sg_web" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 30000
+    to_port     = 32767
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -204,4 +211,91 @@ resource "aws_db_instance" "edtech_db" {
   vpc_security_group_ids = [aws_security_group.sg_web.id]
   skip_final_snapshot    = true # Poder destruirla rápido al terminar
   publicly_accessible    = false
+}
+
+# identidad de seguridad para que CloudFront pueda entrar a S3 de forma privada
+resource "aws_cloudfront_origin_access_control" "oac" {
+  name                              = "pi-cdn-oac"
+  description                       = "Acceso seguro exclusivo para la CDN"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
+# Configurar la Distribución de CloudFront
+resource "aws_cloudfront_distribution" "video_cdn" {
+  origin {
+    domain_name              = aws_s3_bucket.backup_bucket.bucket_regional_domain_name
+    origin_id                = "S3-VideoOrigin"
+    origin_access_control_id = aws_cloudfront_origin_access_control.oac.id
+  }
+
+  enabled             = true
+  is_ipv6_enabled     = true
+  comment             = "CDN Global para Streaming de Videos EdTech"
+  default_root_object = "index.html"
+
+  # Configuración del comportamiento por defecto
+  default_cache_behavior {
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "S3-VideoOrigin"
+
+    forwarded_values {
+      query_string = false
+      headers      = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
+      cookies {
+        forward = "none"
+      }
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600  # Cachear por 1 hora por defecto
+    max_ttl                = 86400
+  }
+
+  # Sin restricciones geográficas para acceso global
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  # Certificado SSL por defecto de Amazon para HTTPS seguro
+  viewer_certificate {
+    cloudfront_default_certificate = true
+  }
+
+  tags = { Name = "pi-video-cdn" }
+}
+
+# Permiso en el Bucket S3 para que acepte peticiones de CloudFront
+resource "aws_s3_bucket_policy" "allow_cdn_access" {
+  bucket = aws_s3_bucket.backup_bucket.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "AllowCloudFrontServicePrincipalReadOnly"
+        Effect    = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action   = "s3:GetObject"
+        Resource = "${aws_s3_bucket.backup_bucket.arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = aws_cloudfront_distribution.video_cdn.arn
+          }
+        }
+      }
+    ]
+  })
+}
+
+# Mostrar la URL de la CDN en la consola al terminar
+output "cdn_domain_name" {
+  value       = aws_cloudfront_distribution.video_cdn.domain_name
+  description = "URL de la CDN para poner en el Frontend"
 }
