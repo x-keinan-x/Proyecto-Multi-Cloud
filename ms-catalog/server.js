@@ -1,98 +1,87 @@
-// ms-catalog/server.js (Node.js + Express)
 const express = require('express');
+const { Pool } = require('pg');
+const cors = require('cors');
+
 const app = express();
 app.use(express.json());
-const cors = require('cors');
 app.use(cors());
 
-// Endpoint para listar cursos
-app.get('/api/courses', (req, res) => {
-    // Estos datos idealmente se jalan desde la BD en Amazon RDS
-    const courses = [
-        {
-            id: '1',
-            title: 'React Avanzado',
-            description: 'Aprende patrones avanzados de React y optimización.',
-            duration: '40 horas',
-            category: 'Frontend',
-            price: 4999,
-            videoUrl: 'https://www.youtube.com/embed/jQEl0pvg8X4',
-        },
-        {
-            id: '2',
-            title: 'Next.js Fullstack',
-            description: 'Desarrollo completo con Next.js desde cero.',
-            duration: '50 horas',
-            category: 'Fullstack',
-            price: 5999,
-            videoUrl: 'https://www.youtube.com/embed/9P8mAofYApA',
-        },
-        {
-            id: '3',
-            title: 'TypeScript Esencial',
-            description: 'Domina TypeScript para escribir código más seguro.',
-            duration: '30 horas',
-            category: 'Backend',
-            price: 3999,
-            videoUrl: 'https://www.youtube.com/embed/30LWayoaoAE',
-        },
-        {
-            id: '4',
-            title: 'Python para Data Science',
-            description: 'Análisis de datos, visualización y machine learning con Python.',
-            duration: '45 horas',
-            category: 'Data Science',
-            price: 5499,
-            videoUrl: 'https://www.youtube.com/embed/XGvf3hT-4W0',
-        },
-        {
-            id: '5',
-            title: 'Diseño UX/UI Moderno',
-            description: 'Aprende a diseñar interfaces hermosas y funcionales.',
-            duration: '35 horas',
-            category: 'Design',
-            price: 4499,
-            videoUrl: 'https://www.youtube.com/embed/c9Wg6Cb_YlU',
-        },
-        {
-            id: '6',
-            title: 'DevOps con Docker y Kubernetes',
-            description: 'Containerización y orquestación de aplicaciones.',
-            duration: '55 horas',
-            category: 'DevOps',
-            price: 6499,
-            videoUrl: 'https://www.youtube.com/embed/VqzVrul7Qmk',
-        },
-        {
-            id: '7',
-            title: 'Vue.js 3 Completo',
-            description: 'Construcción de aplicaciones interactivas con Vue 3.',
-            duration: '42 horas',
-            category: 'Frontend',
-            price: 4999,
-            videoUrl: 'https://www.youtube.com/embed/FXpIoQ_rT_c',
-        },
-        {
-            id: '8',
-            title: 'Seguridad en Desarrollo Web',
-            description: 'Protege tus aplicaciones contra vulnerabilidades comunes.',
-            duration: '38 horas',
-            category: 'Security',
-            price: 5299,
-            videoUrl: 'https://www.youtube.com/embed/gKPZe6ahjNE',
-        },
-        {
-            id: '9',
-            title: 'AWS para Desarrolladores',
-            description: 'Despliegue y gestión de aplicaciones en la nube con AWS.',
-            duration: '48 horas',
-            category: 'Cloud',
-            price: 5999,
-            videoUrl: 'https://www.youtube.com/embed/SOTAmWjovzE',
-        },
-    ];
-    res.json(courses);
+// Configuración del Pool de conexiones a Amazon RDS
+const pool = new Pool({
+    host: process.env.DATABASE_URL, 
+    user: 'dbadmin',                
+    password: process.env.DB_PASSWORD || 'PasswordSeguro123',
+    database: 'postgres',           
+    port: 5432,
+    ssl: {
+        rejectUnauthorized: false   
+    }
+});
+
+// Inicialización automática de la tabla de cursos con datos semilla
+async function initDB() {
+    const createTableQuery = `
+        CREATE TABLE IF NOT EXISTS cursos (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            description TEXT,
+            duration VARCHAR(50),
+            category VARCHAR(100),
+            price NUMERIC(10, 2),
+            video_url TEXT,
+            image_url TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    `;
+    
+    const checkEmptyQuery = `SELECT COUNT(*) FROM cursos;`;
+    
+    const seedDataQuery = `
+        INSERT INTO cursos (title, description, duration, category, price, video_url) VALUES 
+        ('Chatbot con IA', 'desarrollo de un chatbot inteligente.', '1 hora', 'Cloud', 5999, 'https://youtu.be/9PdpOJDcLmU?si=m1-ncPdqJ84R7J2r'),
+        ('Orquestación con Kubernetes', 'Domina K3s y la gestión de microservicios.', '2 horas', 'DevOps', 4500, 'https://youtu.be/DCoBcpOA7W4?si=Vk7eJ9rJ2Q5cKkoy')
+        ON CONFLICT DO NOTHING;
+    `;
+
+    try {
+        await pool.query(createTableQuery);
+        const res = await pool.query(checkEmptyQuery);
+        
+        if (parseInt(res.rows[0].count) === 0) {
+            await pool.query(seedDataQuery);
+            console.log("[RDS] Datos semilla inyectados en la tabla 'cursos'.");
+        } else {
+            console.log("[RDS] La tabla 'cursos' ya contiene datos.");
+        }
+    } catch (err) {
+        console.error("[RDS] Error al inicializar la base de datos de catálogo:", err);
+    }
+}
+initDB();
+
+// ENDPOINT: Obtener el catálogo dinámico desde la Base de Datos
+app.get('/api/courses', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM cursos ORDER BY id ASC');
+        
+        // Se mapean los resultados para asegurar que el Frontend reciba el formato exacto que espera
+        const formattedCourses = result.rows.map(row => ({
+            id: row.id.toString(),
+            title: row.title,
+            description: row.description,
+            duration: row.duration,
+            category: row.category,
+            price: row.price,
+            videoUrl: row.video_url,
+            image: row.image_url
+        }));
+
+        res.json(formattedCourses);
+    } catch (error) {
+        console.error("[RDS] Error al consultar los cursos:", error);
+        res.status(500).json({ error: "Error interno al conectar con la base de datos de catálogo" });
+    }
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Microservicio de Catálogo corriendo en puerto ${PORT}`));
+app.listen(PORT, () => console.log(`Microservicio de Catálogo corriendo en puerto ${PORT} conectado a AWS RDS`));

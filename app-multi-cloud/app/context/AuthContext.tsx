@@ -34,9 +34,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    /*try {
-      // Petición al microservicio de Usuarios (Puerto 4000)
-      const response = await fetch('http://localhost:4000/api/auth/login', {
+    try {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -48,24 +47,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(data.error || 'Credenciales inválidas');
       }
 
+      document.cookie = `token=${data.token}; path=/; max-age=3600; SameSite=Strict`;
+
       // Guardar sesión y actualizar estado
       localStorage.setItem('token', data.token);
-      const loggedUser = { id: '1', email: email };
+      const loggedUser = { id: data.user.id || '1', email: email };
       localStorage.setItem('user', JSON.stringify(loggedUser));
       
       dispatch({ type: 'SET_USER', payload: loggedUser });
     } catch (error) {
       throw error;
-    }*/
+    }
   };
 
   const register = async (email: string, password: string) => {
-    // Llamar API de registro
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al registrarse');
+      }
+    } catch (error) {
+      console.error("Error en register context:", error);
+      throw error;
+    }
   };
 
   const logout = () => {
-    dispatch({ type: 'LOGOUT' });
+    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     localStorage.removeItem('user');
+    dispatch({ type: 'LOGOUT' });
   };
 
   return (
