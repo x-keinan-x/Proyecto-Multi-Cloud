@@ -6,7 +6,7 @@ metadata:
   labels:
     app: ms-users
 spec:
-  replicas: 2 # 2 clones para asegurar que esté disponible el login
+  replicas: 1
   selector:
     matchLabels:
       app: ms-users
@@ -19,7 +19,7 @@ spec:
       - name: users-api
         image: xxkeinanxx/proyecto-multi-cloud-users:latest 
         ports:
-        - containerPort: 8080
+        - containerPort: 4000
         envFrom:
         - configMapRef:
             name: edtech-config
@@ -43,4 +43,4 @@ spec:
     app: ms-users
   ports:
   - port: 80
-    targetPort: 8080
+    targetPort: 4000

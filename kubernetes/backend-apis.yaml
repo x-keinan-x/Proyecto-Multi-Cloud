@@ -6,7 +6,7 @@ metadata:
   labels:
     app: ms-catalog
 spec:
-  replicas: 2 # Iniciamos con 2 pods para Alta Disponibilidad
+  replicas: 1
   selector:
     matchLabels:
       app: ms-catalog
@@ -19,7 +19,7 @@ spec:
       - name: catalog-api
         image: xxkeinanxx/proyecto-multi-cloud-catalog:latest
         ports:
-        - containerPort: 8080
+        - containerPort: 5000
         envFrom:
         - configMapRef:
             name: edtech-config
@@ -43,4 +43,4 @@ spec:
     app: ms-catalog
   ports:
   - port: 80
-    targetPort: 8080
+    targetPort: 5000
