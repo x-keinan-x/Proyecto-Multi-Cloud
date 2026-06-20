@@ -7,7 +7,7 @@ GCP_BUCKET="project-743a56f6-2a76-4816-b0d-pi-dr-backup"
 # 2. Configuración del archivo a respaldar
 FECHA=$(date +%Y-%m-%d_%H-%M-%S)
 ARCHIVO_BACKUP="backup_app_$FECHA.tar.gz"
-DIRECTORIO_DATOS="/var/www/html"
+DIRECTORIO_DATOS="/home/ubuntu/kubernetes"
 
 echo "Iniciando proceso de Disaster Recovery Backup - $FECHA"
 echo "--------------------------------------------------------"
