@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-users-deployment
+  namespace: default
+  labels:
+    app: ms-users
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-users
+  template:
+    metadata:
+      labels:
+        app: ms-users
+    spec:
+      containers:
+      - name: users-api
+        image: xxkeinanxx/proyecto-multi-cloud-users:latest 
+        ports:
+        - containerPort: 4000
+        envFrom:
+        - configMapRef:
+            name: edtech-config
+        - secretRef:
+            name: edtech-secrets
+        resources:
+          requests:
+            cpu: "50m"      
+            memory: "64Mi"  
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-users-service
+spec:
+  type: ClusterIP
+  selector:
+    app: ms-users
+  ports:
+  - port: 80
+    targetPort: 4000

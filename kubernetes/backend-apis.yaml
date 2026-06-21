@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-catalog-deployment
+  namespace: default
+  labels:
+    app: ms-catalog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-catalog
+  template:
+    metadata:
+      labels:
+        app: ms-catalog
+    spec:
+      containers:
+      - name: catalog-api
+        image: xxkeinanxx/proyecto-multi-cloud-catalog:latest
+        ports:
+        - containerPort: 5000
+        envFrom:
+        - configMapRef:
+            name: edtech-config
+        - secretRef:
+            name: edtech-secrets
+        resources:
+          requests:
+            cpu: "50m"      
+            memory: "64Mi"
+          limits:
+            cpu: "500m" # El HPA se activará cuando supere el 70% de este valor
+            memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-catalog-service
+spec:
+  type: ClusterIP # Solo accesible desde dentro del cluster
+  selector:
+    app: ms-catalog
+  ports:
+  - port: 80
+    targetPort: 5000

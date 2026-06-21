@@ -28,7 +28,7 @@ export default function RegisterPage() {
 
     try {
       await register(email, password);
-      router.push('/login'); // Redirige al login tras un registro exitoso
+      router.push('/login');
     } catch (err) {
       setError('Error al registrarse. Intenta con otro email.');
     } finally {

@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image'; // Importamos para renderizar eficientemente EdTech.svg e imágenes
+import Image from 'next/image';
 import { useAuth } from '@/app/context/AuthContext';
-import { MOCK_COURSES } from '@/app/lib/mockCourses';
 
 export default function CatalogPage() {
   // Extraemos user, loading y logout del contexto de autenticación
@@ -15,12 +14,26 @@ export default function CatalogPage() {
   // Estados para manejar los datos reales / mock
   const [courses, setCourses] = useState<any[]>([]);
   const [filteredCourses, setFilteredCourses] = useState<any[]>([]);
+  const [loadingCatalog, setLoadingCatalog] = useState(true);
 
-  // Carga de los cursos simulados/reales
-  useEffect(() => {
-    console.log('Cargando MOCK_COURSES:', MOCK_COURSES.length);
-    setCourses(MOCK_COURSES);
-    setFilteredCourses(MOCK_COURSES);
+useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        // Llama al microservicio de catálogo a través del proxy o URL configurada
+        const response = await fetch('/api/courses');
+        if (!response.ok) throw new Error('Error al cargar catálogo');
+        
+        const data = await response.json();
+        setCourses(data);
+        setFilteredCourses(data);
+      } catch (error) {
+        console.error("Error al obtener los cursos desde la BD:", error);
+      } finally {
+        setLoadingCatalog(false);
+      }
+    };
+
+    fetchCourses();
   }, []);
 
   // Filtro de búsqueda por término
@@ -31,7 +44,7 @@ export default function CatalogPage() {
     setFilteredCourses(filtered);
   }, [searchTerm, courses]);
 
-  if (loading) {
+  if (loading || loadingCatalog) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <p className="text-gray-500 font-medium">Cargando catálogo...</p>
@@ -39,11 +52,11 @@ export default function CatalogPage() {
     );
   }
 
-  // Manejador para el cierre de sesión seguro
+  // Manejador para el cierre de sesión
   const handleLogout = async () => {
     if (logout) {
       await logout();
-      router.push('/'); // Redirige a la landing page pública tras limpiar el JWT
+      router.push('/');
     }
   };
 
