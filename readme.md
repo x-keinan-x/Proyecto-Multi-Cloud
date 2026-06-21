@@ -38,9 +38,40 @@ El proyecto sigue un enfoque de infraestructura distribuida:
 ### 2. Aprovisionamiento de Infraestructura
 Navega a la carpeta de Terraform y ejecuta:
 ```bash
+cd archivos terraform
 terraform init
 terraform plan
 terraform apply --auto-approve
-'''
+``` 
 
 ### 3. Despliegue de Microservicios en Kubernetes
+Una vez dentro de la instancia EC2 principal vía SSH, aplica los manifiestos declarativos:
+
+```
+cd /home/ubuntu/kubernetes
+kubectl apply -f secrets-configmaps.yaml
+kubectl apply -f ms-users.yaml
+kubectl apply -f ms-catalog.yaml
+kubectl apply -f frontend-deployment.yaml
+```
+
+### 🛡️ Ejecución del Disaster Recovery (Backup Multi-Cloud)
+El sistema cuenta con un proceso de respaldo que comprime el estado declarativo del clúster y lo exporta a ambas nubes. Para ejecutar el respaldo de forma manual:
+
+1. Conéctate al servidor principal vía SSH.
+2. Asegúrate de estar autenticado en ambas nubes:
+```
+aws configure
+gcloud auth login --no-browser
+```
+Ejecuta el script de respaldo:
+```
+bash backup-to-gcp.sh
+```
+
+El sistema confirmará la subida del archivo .tar.gz tanto al bucket de AWS S3 como al bucket de contingencia en GCP.
+
+# Autores
+# Pablo Oteiza, Luis Diaz, Diego Curiqueo, Mauricio Carquin, Claudio Valenzuela.
+
+Proyecto de Arquitectura Cloud e Ingeniería de Software.
