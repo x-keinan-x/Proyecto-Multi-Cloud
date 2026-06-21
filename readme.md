@@ -13,6 +13,7 @@ El proyecto sigue un enfoque de infraestructura distribuida:
 ### Stack Tecnológico
 * **Infraestructura como Código:** Terraform
 * **Orquestación de Contenedores:** Kubernetes (K3s)
+* **Docker Desktop**
 * **Frontend:** Next.js
 * **Backend / Microservicios:** Node.js (Catálogo y Usuarios)
 * **Base de Datos:** PostgreSQL
@@ -31,7 +32,10 @@ El proyecto sigue un enfoque de infraestructura distribuida:
 ## Despliegue e Instalación
 
 ### 1. Requisitos Previos
+- Tener instalado un editor de código(Visual Studio Code)
+- Tener instalado PostgreSQL
 - Tener instalado Terraform en la máquina local.
+- Tener instalado Docker Desktop en la máquina local.
 - Configurar credenciales de AWS (`aws configure`) y GCP (`gcloud auth login`).
 - Contar con un par de claves SSH para la conexión a las instancias EC2.
 
