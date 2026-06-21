@@ -42,21 +42,29 @@ El proyecto sigue un enfoque de infraestructura distribuida:
 
 ### 2. Clonación de repositorio y creación de imagenes y contenedores.
 
-#### Clonar el repositorio desde tu servidor de Git (GitHub / GitLab / AWS CodeCommit)
+Clonar el repositorio desde tu servidor de Git (GitHub / GitLab / AWS CodeCommit)
+```bash
 git clone https://github.com/tu-usuario/Proyecto-Multi-Cloud.git
+```
 
-#### Acceder a la carpeta raíz del proyecto
+Acceder a la carpeta raíz del proyecto
+```bash
 cd Proyecto-Multi-Cloud
+```
 
-#### Una vez clonado el repositorio, debemos instalar las dependencias del proyecto abriendo una terminal (de preferiencia CMD para evitar conflictos con PowerShell).
+Una vez clonado el repositorio, debemos instalar las dependencias del proyecto abriendo una terminal (de preferiencia CMD para evitar conflictos con PowerShell).
+```bash
 npm install
+```
 
-#### Ya clonado, abrimos Docker Desktop y en una terminal de Visual Studio Code ejecutamos el siguiente comando.
-#### Construir las imágenes y levantar los contenedores en modo 'detached' (segundo plano)
+Ya clonado, abrimos Docker Desktop y en una terminal de Visual Studio Code ejecutamos el siguiente comando.
+Construir las imágenes y levantar los contenedores en modo 'detached' (segundo plano)
 
+```bash
 docker-compose up --build -d
+```
 
-- Una vez realizado todo estos pasos, se podra ejecutar de manera local, dirigiendonos a la app Docker Desktop en la opción de Containers y dandole click al botón Start.  
+Una vez realizado todo estos pasos, se podra ejecutar de manera local, dirigiendonos a la app Docker Desktop en la opción de Containers y dandole click al botón Start.  
 
 ### 3. Aprovisionamiento de Infraestructura
 Navega a la carpeta de Terraform y ejecuta:
