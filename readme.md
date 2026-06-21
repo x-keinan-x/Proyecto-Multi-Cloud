@@ -32,14 +32,33 @@ El proyecto sigue un enfoque de infraestructura distribuida:
 ## Despliegue e Instalación
 
 ### 1. Requisitos Previos
-- Tener instalado un editor de código(Visual Studio Code)
+- Tener instalado un editor de código(Visual Studio Code).
 - Tener instalado PostgreSQL
 - Tener instalado Terraform en la máquina local.
 - Tener instalado Docker Desktop en la máquina local.
+- Tener instalado Git en la máquina local.
 - Configurar credenciales de AWS (`aws configure`) y GCP (`gcloud auth login`).
 - Contar con un par de claves SSH para la conexión a las instancias EC2.
 
-### 2. Aprovisionamiento de Infraestructura
+### 2. Clonación de repositorio y creación de imagenes y contenedores.
+
+# Clonar el repositorio desde tu servidor de Git (GitHub / GitLab / AWS CodeCommit)
+git clone https://github.com/tu-usuario/Proyecto-Multi-Cloud.git
+
+# Acceder a la carpeta raíz del proyecto
+cd Proyecto-Multi-Cloud
+
+# Una vez clonado el repositorio, debemos instalar las dependencias del proyecto abriendo una terminal (de preferiencia CMD para evitar conflictos con PowerShell).
+npm install
+
+# Ya clonado, abrimos Docker Desktop y en una terminal de Visual Studio Code ejecutamos el siguiente comando.
+# Construir las imágenes y levantar los contenedores en modo 'detached' (segundo plano)
+
+docker-compose up --build -d
+
+- Una vez realizado todo estos pasos, se podra ejecutar de manera local, dirigiendonos a la app Docker Desktop en la opción de Containers y dandole click al botón Start.  
+
+### 3. Aprovisionamiento de Infraestructura
 Navega a la carpeta de Terraform y ejecuta:
 ```bash
 cd archivos terraform
@@ -48,7 +67,7 @@ terraform plan
 terraform apply --auto-approve
 ``` 
 
-### 3. Despliegue de Microservicios en Kubernetes
+### 4. Despliegue de Microservicios en Kubernetes
 Una vez dentro de la instancia EC2 principal vía SSH, aplica los manifiestos declarativos:
 
 ```
@@ -59,7 +78,7 @@ kubectl apply -f ms-catalog.yaml
 kubectl apply -f frontend-deployment.yaml
 ```
 
-### 🛡️ Ejecución del Disaster Recovery (Backup Multi-Cloud)
+### 5. Ejecución del Disaster Recovery (Backup Multi-Cloud)
 El sistema cuenta con un proceso de respaldo que comprime el estado declarativo del clúster y lo exporta a ambas nubes. Para ejecutar el respaldo de forma manual:
 
 1. Conéctate al servidor principal vía SSH.
