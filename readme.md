@@ -137,7 +137,7 @@ gcloud auth login --no-browser
 ```
 Ejecuta el script de respaldo:
 ```
-# Otorgar permisos de ejecución al script si es la primera vez
+# Otorgar permisos de ejecución al script si es la primera vez que se ejecuta
 chmod +x backup-to-gcp.sh
 # Ejecutar el ciclo de respaldo Multi-Cloud
 bash backup-to-gcp.sh
